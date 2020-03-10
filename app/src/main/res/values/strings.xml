@@ -4,4 +4,13 @@
     <string name="addplace">Add Place to Stay</string>
     <string name="saveplaces">Save Places to Stay</string>
     <string name="setprefs">Preferences</string>
+
+    <string name="poiname">POI Name</string>
+    <string name="poitype">POI Type</string>
+    <string name="poiprice">POI Price</string>
+
+    <string name="btn_go">Go!</string>
+    <string name="btn_clear">Clear</string>
+
+    <string name="poiaddescription">You are adding a new Point of Interest. Please respect our Privacy Policy, other related Policies and be respectful to other users!</string>
 </resources>

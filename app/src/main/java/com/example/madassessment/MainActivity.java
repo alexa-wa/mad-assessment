@@ -20,6 +20,7 @@ import android.location.LocationManager;
 import android.location.LocationListener;
 import android.location.Location;
 import android.content.Context;
+import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
