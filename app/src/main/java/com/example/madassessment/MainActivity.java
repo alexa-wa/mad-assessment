@@ -74,9 +74,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.addplace) {
-            Intent intent = new Intent(this, AddPlaceToStay.class);
+        if (item.getItemId() == R.id.setprefs) {
+            Intent intent = new Intent(this, Preferences.class);
             startActivityForResult(intent, 0);
+            return true;
+        }
+        else if (item.getItemId() == R.id.addplace) {
+            Intent intent = new Intent(this, AddPlaceToStay.class);
+            startActivityForResult(intent, 1);
             return true;
         }
         return false;
@@ -84,7 +89,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        // Set preferences request code event handler
         if (requestCode == 0) {
+            // TO-BE IMPLEMENTED...
+        }
+        // Set add POI request code event handler
+        else if (requestCode == 1) {
             // TO-BE IMPLEMENTED...
         }
     }
