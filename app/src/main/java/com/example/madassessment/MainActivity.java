@@ -3,6 +3,7 @@ package com.example.madassessment;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +26,8 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.madassessment.dao.PointOfInterestDAO;
+
 import java.util.ArrayList;
 
 
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private Double longitude = Constants.DEFAULT_LON;
     private Double zoom = Constants.DEFAULT_ZOOM;
 
+    ArrayList<PointOfInterestDAO> storesPointsOfInterest;
     MapView mv;
     ItemizedIconOverlay<OverlayItem> items;
     ItemizedIconOverlay.OnItemGestureListener<OverlayItem> markerGestureListener;
@@ -43,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        storesPointsOfInterest = new ArrayList<PointOfInterestDAO>();
 
         /*
         *   Performing all initial checks and
@@ -123,7 +128,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         // Set add POI request code event handler
         else if (requestCode == 1) {
-            // TO-BE IMPLEMENTED...
+            Bundle extras = intent.getExtras();
+
+            String getPoiName = extras.getString("com.example.poiname");
+            String getPoiType = extras.getString("com.example.poitype");
+            Double getPoiPrice = extras.getDouble("com.example.poiprice");
+
+            try {
+                PointOfInterestDAO pointOfInterest = new PointOfInterestDAO(getPoiName, getPoiType, getPoiPrice);
+                storesPointsOfInterest.add(pointOfInterest);
+            }
+            catch (Exception e) {
+                popupMessage("Error: " + e.getMessage() + " error has occurred.");
+            }
+
         }
     }
 
@@ -147,5 +165,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         //Toast.makeText(this, "Status changed: " + status, Toast.LENGTH_LONG).show();
     }
 
+    private void popupMessage(String message) {
+        new AlertDialog.Builder(this).setPositiveButton("OK", null).setMessage(message).show();
+    }
 }
 

@@ -4,13 +4,13 @@ public class PointOfInterestDAO {
 
     private String name;
     private String type;
-    private int price;
+    private Double price;
 
     public PointOfInterestDAO(String[] values){
-        this(values[0], values[1], Integer.parseInt(values[2]));
+        this(values[0], values[1], Double.parseDouble(values[2]));
     }
 
-    public PointOfInterestDAO(String name, String type, int price) {
+    public PointOfInterestDAO(String name, String type, Double price) {
         this.name = name;
         this.type = type;
         this.price = price;
@@ -24,7 +24,7 @@ public class PointOfInterestDAO {
         return type;
     }
 
-    public int getPrice() {
+    public Double getPrice() {
         return price;
     }
 
@@ -36,7 +36,7 @@ public class PointOfInterestDAO {
         this.type = type;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

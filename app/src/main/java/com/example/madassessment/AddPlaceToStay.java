@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.support.v7.app.AlertDialog;
+import static java.lang.Double.parseDouble;
 
 public class AddPlaceToStay extends AppCompatActivity implements View.OnClickListener {
 
@@ -13,21 +15,18 @@ public class AddPlaceToStay extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_place);
 
-        Intent intent = new Intent();
-        Bundle bundle = new Bundle();
-
         Button btnGo = (Button) findViewById(R.id.btn1);
         Button btnClear = (Button) findViewById(R.id.btn2);
 
         btnGo.setOnClickListener(this);
         btnClear.setOnClickListener(this);
-
-        intent.putExtras(bundle);
-        setResult(RESULT_OK, intent);
     }
 
     @Override
     public void onClick(View view) {
+
+        Intent intent = new Intent();
+        Bundle bundle = new Bundle();
 
         EditText poiName = (EditText)findViewById(R.id.poiName);
         EditText poiType = (EditText)findViewById(R.id.poiType);
@@ -35,7 +34,24 @@ public class AddPlaceToStay extends AppCompatActivity implements View.OnClickLis
 
         switch (view.getId()) {
             case R.id.btn1:
-                System.out.println("To be implemented");
+
+                try {
+                    String storesName = poiName.getText().toString();
+                    String storesType = poiType.getText().toString();
+                    Double storesPrice = parseDouble(poiPrice.getText().toString());
+
+                    bundle.putString("com.example.poiname", storesName);
+                    bundle.putString("com.example.poitype", storesType);
+                    bundle.putDouble("com.example.poiprice", storesPrice);
+
+                    intent.putExtras(bundle);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+                catch (Exception e) {
+                    popupMessage("Error: " + e.getMessage() + " error has occurred.");
+                }
+
                 break;
 
             case R.id.btn2:
@@ -50,4 +66,7 @@ public class AddPlaceToStay extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private void popupMessage(String message) {
+        new AlertDialog.Builder(this).setPositiveButton("OK", null).setMessage(message).show();
+    }
 }
