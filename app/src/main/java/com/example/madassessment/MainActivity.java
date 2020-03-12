@@ -123,24 +123,35 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             return true;
         }
         else if (item.getItemId() == R.id.saveplaces) {
-            PrintWriter pw = null;
+            PrintWriter printWriter = null;
+
+            if(storesPointsOfInterest.size() <= 0) {
+                popupMessage("There is nothing to save! Add some Points of Interest");
+                return false;
+            }
+
             try {
-                File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv");
-                pw = new PrintWriter(f);
+                boolean recordFileExists = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").isFile();
+
+                if(recordFileExists) {
+                    new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").delete();
+                }
+
+                File recordsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv");
+                printWriter = new PrintWriter(recordsFile);
 
                 for (int i = 0; i < storesPointsOfInterest.size(); i++) {
-                    String str = storesPointsOfInterest.get(i).toString();
-                    pw.println(str);
+                    String magicString = storesPointsOfInterest.get(i).toString();
+                    printWriter.println(magicString);
                 }
+                popupMessage("Saved " + storesPointsOfInterest.size() + " Points of Interest to the local storage!");
             }
             catch (FileNotFoundException e) {
+                popupMessage("Error: " + e.getMessage() + " error has occurred.");
                 e.printStackTrace();
-                new AlertDialog.Builder(this)
-                        .setPositiveButton("OK", null)
-                        .setMessage("ERROR: " + e).show();
             }
             finally {
-                pw.close();
+                printWriter.close();
             }
         }
         return false;
