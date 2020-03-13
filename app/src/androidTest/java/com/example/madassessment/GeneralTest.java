@@ -9,12 +9,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
-import com.example.madassessment.dao.PointOfInterestDAO;
+import com.example.madassessment.dataEntities.PointOfInterestEntity;
 
 import java.util.ArrayList;
 
 @RunWith(AndroidJUnit4.class)
-public class ExampleInstrumentedTest {
+public class GeneralTest {
     private static final String TAG = "ExampleTestClass";
 
     @Test
@@ -28,10 +28,15 @@ public class ExampleInstrumentedTest {
     @Test
     public void addPointOfInterestTest() {
         Log.d(TAG, "start of addPointOfInterestTest()");
-        PointOfInterestDAO pointOfInterestRecord = new PointOfInterestDAO("Test name", "Test type", 250.0);
-        ArrayList<PointOfInterestDAO> storesPointsOfInterest = new ArrayList<>();
+        PointOfInterestEntity pointOfInterestRecord = new PointOfInterestEntity("Test name", "Test type", 250.0);
+        ArrayList<PointOfInterestEntity> storesPointsOfInterest = new ArrayList<>();
 
         assertTrue(storesPointsOfInterest.add(pointOfInterestRecord));
+        assertEquals(1, storesPointsOfInterest.size());
+        Log.d(TAG, "added " + storesPointsOfInterest.size() + " record to the POI array");
+
+        assertEquals("Test name", storesPointsOfInterest.get(0).getName());
+        assertEquals("Test type", storesPointsOfInterest.get(0).getType());
 
         Log.d(TAG, "end of addPointOfInterestTest()");
     }

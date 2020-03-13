@@ -1,16 +1,16 @@
-package com.example.madassessment.dao;
+package com.example.madassessment.dataEntities;
 
-public class PointOfInterestDAO {
+public class PointOfInterestEntity {
 
     private String name;
     private String type;
     private Double price;
 
-    public PointOfInterestDAO(String[] values){
+    public PointOfInterestEntity(String[] values){
         this(values[0], values[1], Double.parseDouble(values[2]));
     }
 
-    public PointOfInterestDAO(String name, String type, Double price) {
+    public PointOfInterestEntity(String name, String type, Double price) {
         this.name = name;
         this.type = type;
         this.price = price;

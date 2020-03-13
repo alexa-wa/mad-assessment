@@ -1,22 +1,23 @@
 package com.example.madassessment;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
@@ -26,10 +27,9 @@ import android.location.LocationManager;
 import android.location.LocationListener;
 import android.location.Location;
 import android.content.Context;
-import android.view.View;
 import android.widget.Toast;
 
-import com.example.madassessment.dao.PointOfInterestDAO;
+import com.example.madassessment.dataEntities.PointOfInterestEntity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,29 +43,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private Double longitude = Constants.DEFAULT_LON;
     private Double zoom = Constants.DEFAULT_ZOOM;
     private static final String TAG = "MainActivity";
+    private int STORAGE_PERMISSION_CODE = 1;
 
-    ArrayList<PointOfInterestDAO> storesPointsOfInterest;
-    MapView mv;
-    ItemizedIconOverlay<OverlayItem> items;
     ItemizedIconOverlay.OnItemGestureListener<OverlayItem> markerGestureListener;
+    ArrayList<PointOfInterestEntity> storesPointsOfInterest;
+    ItemizedIconOverlay<OverlayItem> items;
+    MapView mv;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        storesPointsOfInterest = new ArrayList<PointOfInterestDAO>();
+        storesPointsOfInterest = new ArrayList<PointOfInterestEntity>();
 
         /*
         *   Performing all initial checks and
         *   setting the appropriate values
         */
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(MainActivity.this, "Please enable the LOCATION ACCESS in settings.", Toast.LENGTH_LONG).show();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MainActivity.this, "Location permissions were granted", Toast.LENGTH_LONG).show();
         }
         else {
-            // REQUEST PERMISSION......
+            reqestStoragePermission();
         }
 
         LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -99,17 +100,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         };
 
         items = new ItemizedIconOverlay<OverlayItem>(this, new ArrayList<OverlayItem>(), markerGestureListener);
-        OverlayItem randomLocation = new OverlayItem("Random location", "Bad place to stay as it smells", new GeoPoint(latitude, longitude));
-
-        randomLocation.setMarker(getResources().getDrawable(R.drawable.marker_default));
-
-        //items.addItem(randomLocation);
         mv.getOverlays().add(items);
     }
 
     /*
      *   Handling changes on menu selection
      */
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
@@ -129,36 +126,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             return true;
         }
         else if (item.getItemId() == R.id.saveplaces) {
-            PrintWriter printWriter = null;
-
-            if(storesPointsOfInterest.size() <= 0) {
-                popupMessage("There is nothing to save! Add some Points of Interest");
-                return false;
-            }
-
-            try {
-                boolean recordFileExists = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").isFile();
-
-                if(recordFileExists) {
-                    new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").delete();
-                }
-
-                File recordsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv");
-                printWriter = new PrintWriter(recordsFile);
-
-                for (int i = 0; i < storesPointsOfInterest.size(); i++) {
-                    String magicString = storesPointsOfInterest.get(i).toString();
-                    printWriter.println(magicString);
-                }
-                popupMessage("Saved " + storesPointsOfInterest.size() + " Points of Interest to the local storage!");
-            }
-            catch (FileNotFoundException e) {
-                popupMessage("Error: " + e.getMessage() + " error has occurred.");
-                e.printStackTrace();
-            }
-            finally {
-                printWriter.close();
-            }
+            savePoiToLocalStorage();
         }
         return false;
     }
@@ -185,15 +153,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 items.addItem(someLocation);
                 mv.getOverlays().add(items);
 
-                if(poiAutoSave) {
-                    try {
-                        PointOfInterestDAO pointOfInterest = new PointOfInterestDAO(getPoiName, getPoiType, getPoiPrice);
-                        storesPointsOfInterest.add(pointOfInterest);
+                try {
+                    PointOfInterestEntity pointOfInterest = new PointOfInterestEntity(getPoiName, getPoiType, getPoiPrice);
+                    storesPointsOfInterest.add(pointOfInterest);
+
+                    if(poiAutoSave) {
+                        savePoiToLocalStorage();
                     }
-                    catch (Exception e) {
-                        popupMessage("Error: " + e.getMessage() + " error has occurred.");
-                        e.printStackTrace();
-                    }
+                }
+                catch (Exception e) {
+                    popupMessage("Error: " + e.getMessage() + " error has occurred.");
+                    e.printStackTrace();
                 }
             }
         }
@@ -222,6 +192,76 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private void popupMessage(String message) {
         new AlertDialog.Builder(this).setPositiveButton("OK", null).setMessage(message).show();
+    }
+
+    private boolean savePoiToLocalStorage() {
+        PrintWriter printWriter = null;
+
+        if(storesPointsOfInterest.size() <= 0) {
+            popupMessage("There is nothing to save! Add some Points of Interest");
+            return false;
+        }
+
+        try {
+            boolean recordFileExists = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").isFile();
+
+            if(recordFileExists) {
+                new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").delete();
+            }
+
+            File recordsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv");
+            printWriter = new PrintWriter(recordsFile);
+
+            for (int i = 0; i < storesPointsOfInterest.size(); i++) {
+                String magicString = storesPointsOfInterest.get(i).toString();
+                printWriter.println(magicString);
+            }
+            popupMessage("Saved " + storesPointsOfInterest.size() + " Points of Interest to the local storage!");
+        }
+        catch (FileNotFoundException e) {
+            popupMessage("Error: " + e.getMessage() + " error has occurred.");
+            e.printStackTrace();
+        }
+        finally {
+            printWriter.close();
+            return true;
+        }
+    }
+
+    private void reqestStoragePermission() {
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission is required")
+                    .setMessage("This permission is required for the location accuracy!")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, STORAGE_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .create().show();
+        }
+        else {
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, STORAGE_PERMISSION_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == STORAGE_PERMISSION_CODE) {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permissions have been granted!", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(this, "Permissions have been denied!", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
 
