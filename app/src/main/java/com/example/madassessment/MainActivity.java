@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,8 +32,11 @@ import android.widget.Toast;
 
 import com.example.madassessment.dataEntities.PointOfInterestEntity;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
@@ -127,6 +131,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         else if (item.getItemId() == R.id.saveplaces) {
             savePoiToLocalStorage();
+        }
+        else if (item.getItemId() == R.id.loadplaces) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv"));
+
+                String magicLine = "";
+
+                while((magicLine = reader.readLine()) != null) {
+                    String components[] = magicLine.split(",");
+                    PointOfInterestEntity pointOfInterestEntity = new PointOfInterestEntity(components[0], components[1], Double.parseDouble(components[2]));
+                    storesPointsOfInterest.add(pointOfInterestEntity);
+                }
+                Log.v(TAG, String.format("%d", storesPointsOfInterest.size()));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
