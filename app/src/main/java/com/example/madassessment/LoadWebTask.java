@@ -1,10 +1,6 @@
 package com.example.madassessment;
 
-import android.support.v7.app.AlertDialog;
 import android.os.AsyncTask;
-
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.OverlayItem;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 
 public class LoadWebTask extends AsyncTask<Void, Void, String> {
 

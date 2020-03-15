@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -39,9 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
@@ -169,6 +166,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         else if (item.getItemId() == R.id.loadweb) {
             LoadWebTask loadWebTask = new LoadWebTask();
             loadWebTask.execute();
+
+            /*
+            SaveWebTask saveWebTask = new SaveWebTask();
+            saveWebTask.execute();
+             */
         }
         return false;
     }
