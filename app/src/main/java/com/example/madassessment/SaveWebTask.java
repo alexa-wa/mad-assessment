@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.madassessment.dataEntities.PointOfInterestEntity;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,25 +22,25 @@ public class SaveWebTask extends AsyncTask<Void, Void, String> {
 
     @Override
     protected String doInBackground(Void... voids) {
-        HttpURLConnection httpURLConnection = null;
 
         try {
-            URL connectionUrl = new URL("https://www.hikar.org/course/ws/add.php");
-            httpURLConnection = (HttpURLConnection) connectionUrl.openConnection();
+            BufferedReader reader = new BufferedReader(new FileReader(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv"));
+            String magicLine = "";
 
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv"));
-                String magicLine = "";
+            ArrayList<PointOfInterestEntity> storesEntities = new ArrayList<>();
 
-                ArrayList<PointOfInterestEntity> storesEntities = new ArrayList<>();
+            while ((magicLine = reader.readLine()) != null) {
+                String components[] = magicLine.split(",");
+                PointOfInterestEntity pointOfInterestEntity = new PointOfInterestEntity(components[0], components[1], Double.parseDouble(components[2]), Double.parseDouble(components[3]), Double.parseDouble(components[4]));
+                storesEntities.add(pointOfInterestEntity);
+            }
 
-                while((magicLine = reader.readLine()) != null) {
-                    String components[] = magicLine.split(",");
-                    PointOfInterestEntity pointOfInterestEntity = new PointOfInterestEntity(components[0], components[1], Double.parseDouble(components[2]), Double.parseDouble(components[3]), Double.parseDouble(components[4]));
-                    storesEntities.add(pointOfInterestEntity);
-                }
+            for (int i = 0; i < storesEntities.size(); i++) {
+                HttpURLConnection httpURLConnection = null;
+                try {
+                    URL connectionUrl = new URL("https://www.hikar.org/course/ws/add.php");
+                    httpURLConnection = (HttpURLConnection) connectionUrl.openConnection();
 
-                for(int i = 0; i < storesEntities.size(); i++) {
                     String getPoiName = storesEntities.get(i).getName();
                     String getPoiType = storesEntities.get(i).getType().trim();
 
@@ -47,7 +48,7 @@ public class SaveWebTask extends AsyncTask<Void, Void, String> {
                     Double getPoiLatitude = storesEntities.get(i).getLatitude();
                     Double getPoiLongitude = storesEntities.get(i).getLongitude();
 
-                    String postData = "username=user002&name=" + getPoiName + "&type=" + getPoiType + "&price=" + getPoiPrice  + "&lat=" + getPoiLatitude + "&lon=" + getPoiLongitude + "&year=20";
+                    String postData = "username=user002&name=" + getPoiName + "&type=" + getPoiType + "&price=" + getPoiPrice + "&lat=" + getPoiLatitude + "&lon=" + getPoiLongitude + "&year=20";
 
                     httpURLConnection.setDoOutput(true);
                     httpURLConnection.setFixedLengthStreamingMode(postData.length());
@@ -64,25 +65,28 @@ public class SaveWebTask extends AsyncTask<Void, Void, String> {
 
                         while ((magicLine2 = bufferedReader.readLine()) != null) {
                             allRecords += magicLine2;
-                            return allRecords;
                         }
+                        return allRecords;
                     }
                     else {
                         return "HTTP ERROR: " + httpURLConnection.getResponseCode();
                     }
                 }
+                catch (IOException e) {
+                    return e.toString();
+                }
+                finally {
+                    if (httpURLConnection != null) {
+                        httpURLConnection.disconnect();
+                    }
+                }
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        } 
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         catch (IOException e) {
-            return e.toString();
-        } 
-        finally {
-            if (httpURLConnection != null) {
-                httpURLConnection.disconnect();
-            }
+            e.printStackTrace();
         }
         return "HTTP ERROR:";
     }

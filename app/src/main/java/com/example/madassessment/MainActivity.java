@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
 
         LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
+        mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,15,this);
 
         Location location = mgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
@@ -166,6 +166,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                     if(poiAutoSave) {
                         savePoiToLocalStorage();
+                        SaveWebTask saveWebTask = new SaveWebTask();
+                        saveWebTask.execute();
                     }
                 }
                 catch (Exception e) {
@@ -360,5 +362,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 Toast.makeText(this, "Permissions have been denied!", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+
+        boolean poiAutoSave = prefs.getBoolean("autosavepoi", false);
+        savedInstanceState.putBoolean("com.example.autosavepoi", poiAutoSave);
     }
 }

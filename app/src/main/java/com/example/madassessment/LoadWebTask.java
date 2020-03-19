@@ -40,7 +40,7 @@ public class LoadWebTask extends AsyncTask<Void, Void, String> {
                         throw new IllegalArgumentException("Invalid string cannot be split into title, snippet, detail ,lat, lon");
                     }
 
-                    PointOfInterestEntity pointOfInterestEntity = new PointOfInterestEntity(values[0], values[1], Double.parseDouble(values[2]), Double.parseDouble(values[3]), Double.parseDouble(values[4]));
+                    PointOfInterestEntity pointOfInterestEntity = new PointOfInterestEntity(values[0], values[1], Double.parseDouble(values[2]), Double.parseDouble(values[4]), Double.parseDouble(values[3]));
                     storesPointsOfInterest.add(pointOfInterestEntity);
                 }
 

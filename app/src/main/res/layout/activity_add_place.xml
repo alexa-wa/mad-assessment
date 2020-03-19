@@ -55,7 +55,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             />
-
     </LinearLayout>
 
     <LinearLayout android:orientation="horizontal"
@@ -78,7 +77,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             />
-
     </LinearLayout>
 
     <LinearLayout
@@ -100,6 +98,5 @@
             android:layout_weight="1"
             android:text="@string/btn_clear"
             />
-
     </LinearLayout>
 </LinearLayout>
