@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         */
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            reqestStoragePermission();
+            requestStoragePermission();
         }
         else {
             LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -253,8 +253,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             e.printStackTrace();
         }
         finally {
-            printWriter.close();
-            return true;
+            if(printWriter != null) {
+                printWriter.close();
+                return true;
+            }
+            else {
+                Log.d(TAG, "PrintWriter returned null, please debug it!");
+                return false;
+            }
         }
     }
 
@@ -350,15 +356,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         return false;
     }
 
-    private void reqestStoragePermission() {
+    private void requestStoragePermission() {
         if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             new AlertDialog.Builder(this)
                     .setTitle("Permissions are required")
-                    .setMessage("The location access permission is required for the location accuracy!")
+                    .setMessage("Location and storage permissions are required for the application proper work!")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, Constants.STORAGE_PERMISSION_CODE);
+                            ActivityCompat.requestPermissions(MainActivity.this, new String[] {
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            }, Constants.STORAGE_PERMISSION_CODE);
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -370,7 +379,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     .create().show();
         }
         else {
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, Constants.STORAGE_PERMISSION_CODE);
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, Constants.STORAGE_PERMISSION_CODE);
         }
     }
 

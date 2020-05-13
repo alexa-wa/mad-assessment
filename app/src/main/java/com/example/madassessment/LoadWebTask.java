@@ -67,7 +67,13 @@ public class LoadWebTask extends AsyncTask<Void, Void, String> {
                     e.printStackTrace();
                 }
                 finally {
-                    printWriter.close();
+                    if(printWriter != null) {
+                        printWriter.close();
+                    }
+                    else {
+                        Log.d(TAG, "PrintWriter returned null, please debug it!");
+                        return null;
+                    }
                 }
 
                 return magicString;
