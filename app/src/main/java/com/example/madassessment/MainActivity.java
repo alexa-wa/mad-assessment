@@ -45,8 +45,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private Double latitude = Constants.DEFAULT_LAT;
     private Double longitude = Constants.DEFAULT_LON;
     private Double zoom = Constants.DEFAULT_ZOOM;
-    private static final String TAG = "MainActivity";
-    // Change on next commit -> this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
     ItemizedIconOverlay.OnItemGestureListener<OverlayItem> markerGestureListener;
     ArrayList<PointOfInterestEntity> storesPointsOfInterest;
@@ -68,15 +67,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             reqestStoragePermission();
         }
+        else {
+            LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,15,this);
 
-        LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,15,this);
+            Location location = mgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-        Location location = mgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-        if (location != null) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+            if (location != null) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+            }
         }
 
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
@@ -353,8 +353,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private void reqestStoragePermission() {
         if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             new AlertDialog.Builder(this)
-                    .setTitle("Permission is required")
-                    .setMessage("This permission is required for the location accuracy!")
+                    .setTitle("Permissions are required")
+                    .setMessage("The location access permission is required for the location accuracy!")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -378,10 +378,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == Constants.STORAGE_PERMISSION_CODE) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permissions have been granted!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Permissions have been granted! Please restart the application!", Toast.LENGTH_LONG).show();
             }
             else {
-                Toast.makeText(this, "Permissions have been denied!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Permissions have been denied! Please enable for the proper application workflow!", Toast.LENGTH_LONG).show();
             }
         }
     }

@@ -21,9 +21,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static android.content.ContentValues.TAG;
-
 public class PoiListActivity extends ListActivity {
+
+    private final String TAG = this.getClass().getSimpleName();
     String[] names, details;
 
     public void onCreate(Bundle savedInstanceState) {

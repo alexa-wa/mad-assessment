@@ -18,7 +18,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class SaveWebTask extends AsyncTask<Void, Void, String> {
-    private static final String TAG = "MainActivity";
+    private final String TAG = this.getClass().getSimpleName();
 
     @Override
     protected String doInBackground(Void... voids) {

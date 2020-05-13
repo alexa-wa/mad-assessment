@@ -2,6 +2,7 @@ package com.example.madassessment;
 
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import com.example.madassessment.dataEntities.PointOfInterestEntity;
 
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 
 public class LoadWebTask extends AsyncTask<Void, Void, String> {
     ArrayList<PointOfInterestEntity> storesPointsOfInterest = new ArrayList<PointOfInterestEntity>();
+    private final String TAG = this.getClass().getSimpleName();
 
     @Override
     protected String doInBackground(Void... voids) {
@@ -47,7 +49,7 @@ public class LoadWebTask extends AsyncTask<Void, Void, String> {
                 PrintWriter printWriter = null;
 
                 try {
-                    boolean recordFileExists = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").isFile();
+                    boolean recordFileExists = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").exists();
 
                     if (recordFileExists) {
                         new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/records.csv").delete();
