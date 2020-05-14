@@ -206,6 +206,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         Double storesLatitude = storesEntities.get(storesPoiIndex).getLatitude();
                         Double storesLongitude = storesEntities.get(storesPoiIndex).getLongitude();
 
+                        /*
+                        * This enables markers and loads all places from the web
+                        * or the device storage
+                         */
                         loadPlacesFromWeb();
                         loadPlaces();
 
